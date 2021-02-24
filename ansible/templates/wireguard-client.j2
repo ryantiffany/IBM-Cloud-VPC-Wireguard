@@ -1,0 +1,9 @@
+[Interface]
+PrivateKey = {{ hostvars['local']['client_private_key']['content'] | b64decode }}
+
+
+[Peer]
+PublicKey = {{ hostvars['wireguard']['server_public_key']['content'] | b64decode }}
+PresharedKey = {{ hostvars['wireguard']['server_preshared_key']['content'] | b64decode }}
+Endpoint = 162.133.140.98:51820
+AllowedIPs = 166.8.0.0/14, 172.16.0.0/24, 10.244.0.0/18, 10.223.193.57, 10.223.210.146, 10.223.215.110

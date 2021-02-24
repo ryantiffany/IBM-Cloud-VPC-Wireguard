@@ -1,0 +1,23 @@
+---
+  - hosts: all:!control
+    gather_facts: true
+    tasks:
+      - name: Update deb based system
+        apt: 
+          upgrade: yes 
+          update_cache: yes
+        when: ansible_facts['distribution'] == "Ubuntu"
+      - name: Install base tools
+        apt:
+          pkg:
+            - build-essential
+            - curl
+            - wget
+            - resolvconf
+          state: present
+        when: ansible_facts['distribution'] == "Ubuntu"
+      - name: Update rpm based system
+        yum:
+          name: "*"
+          state: latest
+        when: ansible_facts['distribution'] == "CentOS"

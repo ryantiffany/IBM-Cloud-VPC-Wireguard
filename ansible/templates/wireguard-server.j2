@@ -1,0 +1,12 @@
+[Interface]
+Address = 172.16.0.2/24
+SaveConfig = true
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ens3 -j MASQUERADE
+ListenPort = 51820
+PrivateKey = {{ hostvars['wireguard']['server_public_key']['content'] | b64decode }}
+DNS = 1.1.1.1
+
+[Peer]
+PublicKey = {{ hostvars['local']['client_public_key']['content'] | b64decode }}
+PresharedKey = {{ hostvars['local']['client_public_key']['content'] | b64decode }}

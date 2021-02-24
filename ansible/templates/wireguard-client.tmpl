@@ -1,0 +1,9 @@
+[Interface]
+PrivateKey = {{ hostvars['local']['client_private_key']['content'] | b64decode }}
+Address = 172.16.0.3/24
+
+[Peer]
+PublicKey = {{ hostvars['wireguard']['server_public_key']['content'] | b64decode }}
+PresharedKey = {{ hostvars['wireguard']['server_preshared_key']['content'] | b64decode }}
+Endpoint = ${bastion}:51820
+AllowedIPs = 166.8.0.0/14, 172.16.0.0/24, ${subnets}, ${cse_addresses}
