@@ -38,4 +38,7 @@ variable "ibmcloud_timeout" {
 
 variable name {
 
-} 
+}
+
+variable sysdig_key {}
+variable logdna_ingestion_key {}

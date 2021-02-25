@@ -5,3 +5,7 @@ output web_security_group {
 output wireguard_security_group {
   value = ibm_is_security_group.wireguard_security_group.id
 }
+
+output maintenance_security_group {
+  value = ibm_is_security_group.maintenance_security_group.id
+}

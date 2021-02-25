@@ -48,7 +48,7 @@ module security {
   name           = var.name
   resource_group = data.ibm_resource_group.group.id
   vpc            = local.vpc.id
-  subnet_cidr = module.network.subnet_ipv4_cidr_block
+  subnet_cidr    = module.network.subnet_ipv4_cidr_block
 }
 
 module wireguard {
@@ -59,7 +59,7 @@ module wireguard {
   resource_group = data.ibm_resource_group.group.id
   name           = "${var.name}-wg"
   zone           = data.ibm_is_zones.mzr.zones[0]
-  security_group = module.security.wireguard_security_group
+  security_group = module.security.maintenance_security_group
   tags           = concat(var.tags, ["zone:${data.ibm_is_zones.mzr.zones[0]}", "region:${var.region}", "vpc:${var.name}-vpc", "provider:ibmcloud"])
 }
 
@@ -72,7 +72,7 @@ module instance {
   resource_group = data.ibm_resource_group.group.id
   name           = "${var.name}-web-${count.index + 1}"
   zone           = data.ibm_is_zones.mzr.zones[0]
-  security_group = module.security.web_security_group
+  security_group = module.security.maintenance_security_group
   tags           = concat(var.tags, ["zone:${data.ibm_is_zones.mzr.zones[0]}", "region:${var.region}", "vpc:${var.name}-vpc", "provider:ibmcloud"])
 }
 
@@ -82,11 +82,13 @@ resource ibm_is_floating_ip wireguard {
 }
 
 module ansible {
-  source          = "./ansible"
-  instances       = module.instance[*].instances
-  bastion         = ibm_is_floating_ip.wireguard.address
-  region          = var.region
-  cse_addresses   = join(", ", flatten(local.vpc.cse_source_addresses[*].address))
-  subnets         = join(", ", [format("%s0.0/18", substr(module.network.subnet_ipv4_cidr_block, 0, 7))])
-  private_key_pem = tls_private_key.ssh.private_key_pem
+  source               = "./ansible"
+  instances            = module.instance[*].instances
+  bastion              = ibm_is_floating_ip.wireguard.address
+  logdna_ingestion_key = var.logdna_ingestion_key
+  sysdig_key           = var.sysdig_key
+  region               = var.region
+  cse_addresses        = join(", ", flatten(local.vpc.cse_source_addresses[*].address))
+  subnets              = join(", ", [format("%s0.0/18", substr(module.network.subnet_ipv4_cidr_block, 0, 7))])
+  private_key_pem      = tls_private_key.ssh.private_key_pem
 }

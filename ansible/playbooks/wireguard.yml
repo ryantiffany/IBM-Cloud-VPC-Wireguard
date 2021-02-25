@@ -6,14 +6,14 @@
       - vars.yml
     tasks:
       - name: Generate client wireguard keys
-        shell: umask 077; wg genkey | tee {{ local_wireguard_path }}/privatekey | wg pubkey > {{ local_wireguard_path }}/publickey
+        shell: umask 077; wg genkey | tee {{ local_wireguard_path }}/tmp/privatekey | wg pubkey > {{ local_wireguard_path }}/tmp/publickey
         run_once: true
       - name: Generate client preshared key
-        shell: wg genpsk | tee {{ local_wireguard_path }}/presharedkey
+        shell: wg genpsk | tee {{ local_wireguard_path }}/tmp/presharedkey
         run_once: true
       - name: Read client preshared key
         slurp:
-          src: "{{ local_wireguard_path }}/presharedkey"
+          src: "{{ local_wireguard_path }}/client.presharedkey"
         register: client_preshared_key
       - name: Read client private key
         slurp:
@@ -31,6 +31,11 @@
       - name: Install wireguard
         apt:
           name: wireguard
+      - name: Set sysctl to forward IP traffic
+        blockinfile:
+          path: /etc/sysctl.conf
+          block: |
+            net.ipv4.ip_forward=1
       - name: Generate server wireguard keys
         shell: umask 077; wg genkey | tee {{ server_wireguard_path }}/privatekey | wg pubkey > {{ server_wireguard_path }}/publickey
         run_once: true
@@ -57,6 +62,8 @@
         systemd:
           name: wg-quick@wg0
           enabled: yes
+      - name: Reboot to ensure WG has the latest kernel
+        reboot:
   - hosts: local
     connection: local
     gather_facts: false

@@ -11,8 +11,10 @@ resource "local_file" "ansible-inventory" {
 resource "local_file" "ansible-vars" {
   content = templatefile("${path.module}/templates/vars.tmpl",
     {
-      region  = var.region
-      bastion = var.bastion
+      region               = var.region
+      bastion              = var.bastion
+      sysdig_key           = var.sysdig_key
+      logdna_ingestion_key = var.logdna_ingestion_key
     }
   )
   filename = "${path.module}/playbooks/vars.yml"
